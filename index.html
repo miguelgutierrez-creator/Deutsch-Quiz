@@ -1,0 +1,435 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deutsch Quiz</title>
+
+    <style>
+        body {
+            background-color: #e8f1ff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 30px 15px;
+        }
+
+        .contenedor {
+            background-color: white;
+            max-width: 550px;
+            margin: 30px auto;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px #00000018;
+        }
+
+        h1 {
+            color: #174ea6;
+        }
+
+        h2 {
+            color: #24334b;
+        }
+
+        p {
+            color: #555;
+        }
+
+        button {
+            background-color: #4848ee;
+            color: white;
+            padding: 13px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #1749b5;
+        }
+
+        button:disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .correcto {
+            background-color: #28a745 !important;
+        }
+
+        .incorrecto {
+            background-color: #dc3545 !important;
+        }
+
+        #resultado {
+            font-weight: bold;
+            min-height: 25px;
+        }
+
+        #puntos {
+            color: #174ea6;
+        }
+
+        .oculto {
+            display: none;
+        }
+
+        .progreso {
+            color: #777;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="contenedor">
+        <h1>Deutsch Quiz 🇩🇪</h1>
+        <p>Aprende alemán de forma divertida</p>
+
+        <!-- PANTALLA DE INICIO -->
+        <div id="inicio">
+            <h2>Selecciona una categoría</h2>
+            <button onclick="iniciarQuiz('vocabulario')">
+                Vokabeln - Vocabulario
+            </button>
+            <button onclick="iniciarQuiz('gramatica')">
+                Grammatik - Gramática
+            </button>
+            <button onclick="iniciarQuiz('verbos')">
+                Verben - Verbos
+            </button>
+        </div>
+
+        <!-- PANTALLA DE PREGUNTAS -->
+        <div id="quiz" class="oculto">
+            <p id="progreso" class="progreso"></p>
+            <h2 id="pregunta"></h2>
+            <div id="opciones"></div>
+            <p id="resultado"></p>
+            <h3 id="puntos">Puntos: 0</h3>
+            <button id="siguiente" class="oculto"
+                    onclick="siguientePregunta()">
+                Siguiente pregunta
+            </button>
+        </div>
+
+        <!-- PANTALLA FINAL -->
+        <div id="final" class="oculto">
+            <h2>¡Terminaste el quiz! 🎉</h2>
+            <h3 id="notaFinal"></h3>
+            <p id="mensajeFinal"></p>
+            <button onclick="volverInicio()">
+                Volver al inicio
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // BANCO DE PREGUNTAS
+        const preguntas = {
+            vocabulario: [
+                {
+                    pregunta: "¿Qué significa Haus?",
+                    opciones: ["Casa", "Perro", "Escuela", "Libro"],
+                    correcta: "Casa"
+                },
+                {
+                    pregunta: "¿Qué significa Hund?",
+                    opciones: ["Gato", "Perro", "Agua", "Pan"],
+                    correcta: "Perro"
+                },
+                {
+                    pregunta: "¿Qué significa Wasser?",
+                    opciones: ["Leche", "Casa", "Agua", "Escuela"],
+                    correcta: "Agua"
+                },
+                {
+                    pregunta: "¿Qué significa Apfel?",
+                    opciones: ["Pera", "Manzana", "Naranja", "Plátano"],
+                    correcta: "Manzana"
+                },
+                {
+                    pregunta: "¿Qué significa Schule?",
+                    opciones: ["Casa", "Ciudad", "Escuela", "Calle"],
+                    correcta: "Escuela"
+                },
+                {
+                    pregunta: "¿Qué significa Buch?",
+                    opciones: ["Libro", "Mesa", "Silla", "Cuaderno"],
+                    correcta: "Libro"
+                },
+                {
+                    pregunta: "¿Qué significa Freund?",
+                    opciones: ["Hermano", "Amigo", "Padre", "Profesor"],
+                    correcta: "Amigo"
+                },
+                {
+                    pregunta: "¿Qué significa Katze?",
+                    opciones: ["Perro", "Pájaro", "Gato", "Caballo"],
+                    correcta: "Gato"
+                },
+                {
+                    pregunta: "¿Qué significa Brot?",
+                    opciones: ["Arroz", "Pan", "Carne", "Queso"],
+                    correcta: "Pan"
+                },
+                {
+                    pregunta: "¿Qué significa Sonne?",
+                    opciones: ["Luna", "Estrella", "Sol", "Cielo"],
+                    correcta: "Sol"
+                }
+            ],
+
+            gramatica: [
+                {
+                    pregunta: "¿Cuál es el artículo de Haus?",
+                    opciones: ["der", "die", "das", "den"],
+                    correcta: "das"
+                },
+                {
+                    pregunta: "¿Cuál es el artículo de Schule?",
+                    opciones: ["der", "die", "das", "dem"],
+                    correcta: "die"
+                },
+                {
+                    pregunta: "¿Cuál es el artículo de Hund?",
+                    opciones: ["das", "die", "den", "der"],
+                    correcta: "der"
+                },
+                {
+                    pregunta: "Completa: Ich ___ Schüler.",
+                    opciones: ["bist", "bin", "ist", "sind"],
+                    correcta: "bin"
+                },
+                {
+                    pregunta: "Completa: Du ___ nett.",
+                    opciones: ["bin", "ist", "bist", "sind"],
+                    correcta: "bist"
+                },
+                {
+                    pregunta: "Completa: Er ___ ein Auto.",
+                    opciones: ["habe", "hast", "haben", "hat"],
+                    correcta: "hat"
+                },
+                {
+                    pregunta: "¿Cuál es el plural de Kind?",
+                    opciones: ["Kinds", "Kinder", "Kinden", "Kindes"],
+                    correcta: "Kinder"
+                },
+                {
+                    pregunta: "¿Cuál es el plural de Buch?",
+                    opciones: ["Bücher", "Buchs", "Buchen", "Bucher"],
+                    correcta: "Bücher"
+                },
+                {
+                    pregunta: "Completa: Wir ___ Freunde.",
+                    opciones: ["ist", "bin", "sind", "bist"],
+                    correcta: "sind"
+                },
+                {
+                    pregunta: "Completa: Das ist ___ Apfel.",
+                    opciones: ["eine", "einen", "einer", "ein"],
+                    correcta: "ein"
+                }
+            ],
+
+            verbos: [
+                {
+                    pregunta: "¿Qué significa essen?",
+                    opciones: ["Beber", "Comer", "Dormir", "Correr"],
+                    correcta: "Comer"
+                },
+                {
+                    pregunta: "¿Qué significa trinken?",
+                    opciones: ["Comer", "Leer", "Beber", "Escribir"],
+                    correcta: "Beber"
+                },
+                {
+                    pregunta: "¿Qué significa schlafen?",
+                    opciones: ["Dormir", "Trabajar", "Jugar", "Hablar"],
+                    correcta: "Dormir"
+                },
+                {
+                    pregunta: "¿Qué significa lernen?",
+                    opciones: ["Enseñar", "Aprender", "Comprar", "Caminar"],
+                    correcta: "Aprender"
+                },
+                {
+                    pregunta: "¿Qué significa gehen?",
+                    opciones: ["Saltar", "Nadar", "Ir", "Leer"],
+                    correcta: "Ir"
+                },
+                {
+                    pregunta: "¿Qué significa schreiben?",
+                    opciones: ["Escuchar", "Leer", "Hablar", "Escribir"],
+                    correcta: "Escribir"
+                },
+                {
+                    pregunta: "¿Qué significa lesen?",
+                    opciones: ["Leer", "Cantar", "Dormir", "Bailar"],
+                    correcta: "Leer"
+                },
+                {
+                    pregunta: "¿Qué significa spielen?",
+                    opciones: ["Trabajar", "Jugar", "Estudiar", "Comer"],
+                    correcta: "Jugar"
+                },
+                {
+                    pregunta: "¿Qué significa sprechen?",
+                    opciones: ["Escuchar", "Mirar", "Hablar", "Escribir"],
+                    correcta: "Hablar"
+                },
+                {
+                    pregunta: "¿Qué significa kaufen?",
+                    opciones: ["Vender", "Comprar", "Buscar", "Llevar"],
+                    correcta: "Comprar"
+                }
+            ]
+        };
+
+        // VARIABLES DEL QUIZ
+        let categoriaActual = "";
+        let preguntaActual = 0;
+        let puntos = 0;
+        let respondida = false;
+
+        // INICIAR EL QUIZ
+        function iniciarQuiz(categoria) {
+            categoriaActual = categoria;
+            preguntaActual = 0;
+            puntos = 0;
+
+            document.getElementById("inicio").classList.add("oculto");
+            document.getElementById("final").classList.add("oculto");
+            document.getElementById("quiz").classList.remove("oculto");
+
+            mostrarPregunta();
+        }
+
+        // MOSTRAR UNA PREGUNTA
+        function mostrarPregunta() {
+            respondida = false;
+
+            const pregunta = preguntas[categoriaActual][preguntaActual];
+
+            document.getElementById("pregunta").textContent =
+                pregunta.pregunta;
+
+            document.getElementById("progreso").textContent =
+                "Pregunta " + (preguntaActual + 1) +
+                " de " + preguntas[categoriaActual].length;
+
+            document.getElementById("puntos").textContent =
+                "Puntos: " + puntos;
+
+            document.getElementById("resultado").textContent = "";
+
+            document.getElementById("siguiente").classList.add("oculto");
+
+            const contenedor = document.getElementById("opciones");
+            contenedor.innerHTML = "";
+
+            pregunta.opciones.forEach(opcion => {
+                const boton = document.createElement("button");
+                boton.textContent = opcion;
+                boton.onclick = () => comprobarRespuesta(opcion, boton);
+                contenedor.appendChild(boton);
+            });
+        }
+
+        // COMPROBAR LA RESPUESTA
+        function comprobarRespuesta(respuesta, botonSeleccionado) {
+            if (respondida) {
+                return;
+            }
+
+            respondida = true;
+
+            const correcta =
+                preguntas[categoriaActual][preguntaActual].correcta;
+
+            const botones = document.querySelectorAll("#opciones button");
+
+            botones.forEach(boton => {
+                boton.disabled = true;
+
+                if (boton.textContent === correcta) {
+                    boton.classList.add("correcto");
+                }
+            });
+
+            if (respuesta === correcta) {
+                puntos++;
+                document.getElementById("resultado").textContent =
+                    "¡Correcto! ✅";
+            } else {
+                botonSeleccionado.classList.add("incorrecto");
+                document.getElementById("resultado").textContent =
+                    "Incorrecto ❌ La respuesta correcta es: " + correcta;
+            }
+
+            document.getElementById("puntos").textContent =
+                "Puntos: " + puntos;
+
+            const botonSiguiente = document.getElementById("siguiente");
+
+            if (preguntaActual === preguntas[categoriaActual].length - 1) {
+                botonSiguiente.textContent = "Ver resultados";
+            } else {
+                botonSiguiente.textContent = "Siguiente pregunta";
+            }
+
+            botonSiguiente.classList.remove("oculto");
+        }
+
+        // PASAR A LA SIGUIENTE PREGUNTA
+        function siguientePregunta() {
+            preguntaActual++;
+
+            if (preguntaActual < preguntas[categoriaActual].length) {
+                mostrarPregunta();
+            } else {
+                mostrarResultados();
+            }
+        }
+
+        // MOSTRAR LOS RESULTADOS FINALES
+        function mostrarResultados() {
+            document.getElementById("quiz").classList.add("oculto");
+            document.getElementById("final").classList.remove("oculto");
+
+            const total = preguntas[categoriaActual].length;
+            const porcentaje = Math.round((puntos / total) * 100);
+
+            document.getElementById("notaFinal").textContent =
+                "Obtuviste " + puntos + " de " + total +
+                " puntos (" + porcentaje + "%)";
+
+            let mensaje = "";
+
+            if (porcentaje >= 80) {
+                mensaje = "Sehr gut! ¡Excelente trabajo!";
+            } else if (porcentaje >= 50) {
+                mensaje = "Gut! ¡Vas por buen camino!";
+            } else {
+                mensaje = "Sigue practicando. ¡Tú puedes!";
+            }
+
+            document.getElementById("mensajeFinal").textContent = mensaje;
+        }
+
+        // VOLVER AL INICIO
+        function volverInicio() {
+            document.getElementById("final").classList.add("oculto");
+            document.getElementById("quiz").classList.add("oculto");
+            document.getElementById("inicio").classList.remove("oculto");
+        }
+    </script>
+
+</body>
+</html>
